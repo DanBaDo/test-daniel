@@ -12,7 +12,13 @@ class Inspection(models.Model):
     Company = models.CharField(max_length=50, null=True, blank=True)
     @property
     def title (self):
-        return f'{self.city} - {self.scheduledDate.year}/{self.scheduledDate.month}/{self.scheduledDate.day}'
+        if self.scheduledDate:
+            year = self.scheduledDate.year
+            month = self.scheduledDate.month
+            day = self.scheduledDate.day
+        else:
+            year = month = day = ""
+        return f'{self.city} - {year}/{month}/{day}'
     @property
     def itemsOk (self):
         return self.item_set.filter(isIssue=False).count()
