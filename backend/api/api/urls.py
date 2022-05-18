@@ -16,24 +16,15 @@ Including another URLconf
 ## We don't need Django admin panel for now
 # from django.contrib import admin
 # We need include for append Django REST framework URLs
-from django.urls import path, include
+from django.urls import re_path, path, include
 
-# Import authomatic Django REST routes
-from rest_framework.routers import DefaultRouter
-# Our app REST API views
-from rest.views import UserViewSet, GroupViewSet
-
-# Initialize Django REST router
-router = DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'groups', GroupViewSet)
+# Our app REST API view
+from rest.views import InspectionList
 
 urlpatterns = [
     ## We don't need Django admin panel for now
     #path('admin/', admin.site.urls),
-
-    # Append Django REST urls
-    path('', include(router.urls)),
+    path('api/solargrade/inpsections', InspectionList.as_view()),
     # Django REST browsable API authorization support
     path('api-auth', include('rest_framework.urls', namespace='rest_framework'))
 ]
