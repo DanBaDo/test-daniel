@@ -1,24 +1,19 @@
 ## We don't need render for REST API
 # from django.shortcuts import render
 
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest.serializers import UserSerializer, GroupSerializer
+from rest_framework import permissions, generics
 
-class UserViewSet(viewsets.ModelViewSet):
-    '''
-    CRUD endpoint for User model
-    '''
-    queryset = User.objects.all().order_by('id')
-    serializer_class = UserSerializer
-    #permission_classes = [permissions.IsAdminUser]
-    permission_classes = [permissions.AllowAny]
+from inspections.models import Inspection
+from rest.serializers import InspectionSerializer
 
-class GroupViewSet(viewsets.ReadOnlyModelViewSet):
+class InspectionList(generics.ListAPIView):
     '''
-    Admin read only endpointo for Group model
+    Required inspections endpoint
     '''
-    queryset = Group.objects.all().order_by("name")
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAdminUser]
+    serializer_class = InspectionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        company = self.request.query_params.get('company')
+        queryset = Inspection.objects.filter(Company=company)
+        return queryset
