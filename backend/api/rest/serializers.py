@@ -1,7 +1,17 @@
-from django.contrib.auth.models import User, Group
+from dataclasses import fields
+from turtle import title
 from rest_framework import serializers
-# from rest_framework import viewsets
-# from rest_framework import permissions
+
+from django.contrib.auth.models import User, Group
+from inspections.models import Inspection, Inspector, Item
+
+class InspectionSerializer (serializers.ModelSerializer):
+    '''
+    Serializer for required inspections endpoint
+    '''
+    class Meta:
+        model = Inspection
+        fields = ['title', 'inspectorName', 'itemsOk', 'issuesWarningcount', 'issuesCriticalCount', 'Company' ]
 
 class UserSerializer(serializers.ModelSerializer):
     '''
