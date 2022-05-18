@@ -11,7 +11,7 @@ class Inspection(models.Model):
     inspectorId = models.ForeignKey(Inspector, on_delete=models.RESTRICT)
     Company = models.CharField(max_length=50, null=True, blank=True)
     @property
-    def description (self):
+    def title (self):
         return f'{self.city} - {self.scheduledDate.year}/{self.scheduledDate.month}/{self.scheduledDate.day}'
     @property
     def itemsOk (self):
@@ -22,6 +22,9 @@ class Inspection(models.Model):
     @property
     def issuesCriticalCount (self):
         return self.item_set.filter(severity__gte=60).count()
+    @property
+    def inspectorName (self):
+        return self.inspectorId.name
 
 class Item(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
