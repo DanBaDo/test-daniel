@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { User } from '../models/Users';
 import { ContextService } from '../services/context.service';
 
 @Component({
@@ -10,15 +9,20 @@ import { ContextService } from '../services/context.service';
 })
 export class ParentExampleComponent implements OnInit {
 
-  users: User[] = []
+  inspections: any = {}
 
   constructor(
     private api: ApiService,
-    public context: ContextService
-  ) { }
-
-  async ngOnInit(): Promise<void> {
-    this.users = await this.api.getUsers()
+    public context: ContextService,
+  ) {
+    this.api.getInspections().subscribe(
+      data => {
+        this.inspections = data
+        console.log(data);
+      }
+    )
   }
+
+  async ngOnInit() {}
 
 }
