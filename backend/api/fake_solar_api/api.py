@@ -1,4 +1,3 @@
-import string
 import requests
 from aux.errors_handling import errorLogger
 
