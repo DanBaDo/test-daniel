@@ -1,0 +1,6 @@
+<h2>Parent</h2>
+<p>Context: {{context.data.counter}}</p>
+<ul *ngFor='let item of users'>
+    <li [innerHTML]='item.username'></li>
+</ul>
+<app-child-example></app-child-example>
