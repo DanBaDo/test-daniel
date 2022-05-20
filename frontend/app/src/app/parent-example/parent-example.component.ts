@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { ContextService } from '../services/context.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-parent-example',
@@ -15,9 +16,10 @@ export class ParentExampleComponent implements OnInit {
     private api: ApiService,
     public context: ContextService,
   ) {
-    this.api.getInspections().subscribe(
-      data => {
-        this.inspections = data
+    this.api.getInspections()
+    .subscribe(
+      (data) => {
+        this.inspections = data.results
         console.log(data);
       }
     )
