@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
+
 import { ApiService } from '../services/api.service';
 import { ContextService } from '../services/context.service';
-import { take } from 'rxjs';
+import { Inspection } from '../services/models';
 
 @Component({
   selector: 'app-parent-example',
   templateUrl: './parent-example.component.html',
   styleUrls: ['./parent-example.component.css']
 })
-export class ParentExampleComponent implements OnInit {
+export class ParentExampleComponent {
 
-  inspections: any = {}
+  inspections: Inspection[] = []
+  totalWarnings: number = 0
+  totalCriticals: number = 0
 
   constructor(
     private api: ApiService,
@@ -19,12 +22,17 @@ export class ParentExampleComponent implements OnInit {
     this.api.getInspections()
     .subscribe(
       (data) => {
+        let currentWarnings = 0
+        let currentCriticals = 0
+        data.results.forEach( item => {
+          currentWarnings += item.issuesWarningCount
+          currentCriticals += item.issuesCriticalCount
+        });
         this.inspections = data.results
-        console.log(data);
+        this.totalWarnings = currentWarnings
+        this.totalCriticals = currentCriticals
+        console.log(data)
       }
     )
   }
-
-  async ngOnInit() {}
-
 }
