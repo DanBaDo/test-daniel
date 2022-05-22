@@ -1,6 +1,8 @@
 import requests
 from aux.errors_handling import errorLogger
 
+from django_mock_queries import MockSet, MockModel
+
 from fake_solar_api.defines import ENDPOINTS, SG_IDS, RESP_STATUS, Response
 
 def request(endpoint):
@@ -73,3 +75,19 @@ def solar_grade_inspections(sg_inspectors, inspections, inspector_id_field):
     except Exception as error:
         errorLogger(error, __name__, "solar_grade_inspectors")
         return []
+
+def fake_solar_query_set_factory(inspections):
+    mock_inspections = [ 
+        MockModel(
+            title = "TODO", #TODO: Get data for title
+            inspectorName = "TODO", #TODO: Get inspection name
+            itemsOk = "TODO", #TODO: Get total ok items
+            issuesWarningCount = "TODO", #TODO: Get total warning items
+            issuesCriticalCount= "TODO", #TODO: Get total critial items
+            Company = "SolarGrade"
+        )
+        for item in inspections
+    ]
+    fs_model = MockSet(mock_inspections)
+    return fs_model
+
