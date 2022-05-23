@@ -1,8 +1,10 @@
-import requests
-from aux.errors_handling import errorLogger
+from datetime import datetime
+from itertools import accumulate
 
+import requests
 from django_mock_queries import MockSet, MockModel
 
+from aux.errors_handling import errorLogger
 from fake_solar_api.defines import ENDPOINTS, SG_IDS, RESP_STATUS, Response
 
 def request(endpoint):
@@ -64,30 +66,48 @@ def solar_grade_inspections(sg_inspectors, inspections, inspector_id_field):
         inspector_id_field - Inspection inspector ID field.
         returns -> []
     '''
+    inspectors_by_id = {}
+    inspections = []
+
     try:
-        sg_inspectors_ids = set(
-            [ inspector["id"] for inspector in sg_inspectors ]
-        )
-        return [
-            inspection for inspection in inspections
-            if inspection[inspector_id_field] in sg_inspectors_ids
-        ]
+        for inspector in sg_inspectors:
+            inspectors_by_id[inspector.id] = inspector
+
+        for inspection in inspections:
+            if inspection.inspectorId in inspectors_by_id.keys():
+                date = datetime.strptime(inspection.createdAt[0:10], "%Y-%m-%d")
+                inspection = {
+                    "title": f'{inspection.city} - {date.strftime("%Y")}/{date.strftime("%m")}',
+                    "inspectorName": inspector[inspection.inspectorId]["name"],
+                    "itemsOk": accumulate([
+                        1 for inspection in inspections
+                        if inspection.isIssue == False
+                    ]),
+                    "issuesWarningCount": accumulate([
+                        1 for inspection in inspections
+                        if inspection.isIssue == True and inspection.severity < 60
+                    ]),
+                    "issuesCriticalCount": accumulate([
+                        1 for inspection in inspections
+                        if inspection.isIssue == True and inspection.severity >= 60
+                    ]),
+                    "Company": "SolarGrade",
+                }
+                inspections.append(inspection)
+        return inspections
     except Exception as error:
         errorLogger(error, __name__, "solar_grade_inspectors")
         return []
 
 def fake_solar_query_set_factory(inspections):
+    '''
+    Return a mocked model from inspections list
+    inspections - solar_grade_inspections generated inspections list
+    returns -> QuerySet
+    '''
     mock_inspections = [ 
-        MockModel(
-            title = "TODO", #TODO: Get data for title
-            inspectorName = "TODO", #TODO: Get inspection name
-            itemsOk = "TODO", #TODO: Get total ok items
-            issuesWarningCount = "TODO", #TODO: Get total warning items
-            issuesCriticalCount= "TODO", #TODO: Get total critial items
-            Company = "SolarGrade"
-        )
+        MockModel(**item)
         for item in inspections
     ]
     fs_model = MockSet(mock_inspections)
     return fs_model
-
