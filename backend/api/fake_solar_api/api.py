@@ -2,7 +2,7 @@ from datetime import datetime
 from itertools import accumulate
 
 import requests
-from django_mock_queries import MockSet, MockModel
+from django_mock_queries.query import MockSet, MockModel
 
 from aux.errors_handling import errorLogger
 from fake_solar_api.defines import ENDPOINTS, SG_IDS, RESP_STATUS, Response
@@ -12,6 +12,8 @@ def request(endpoint):
     Generic FakeSolar API request
         endpoin - URL label in ENDPOINTS dictionary.
         returns -> Response
+        Example: 
+            data = request(ENDPOINTS["INSPECTORS"])
     '''
     try:
         if endpoint in ENDPOINTS:
@@ -34,6 +36,8 @@ def our_ids_in_integrations(ids, integrations):
         ids - Our IDs set.
         integrations - inspector API integrations list.
         returns -> Boolean.
+        Example:
+            ids = our_ids_in_integrations(SG_IDS, inspector.availableIntegrations)
     '''
     try:
         return len( set(ids).intersection(integrations) ) == True
@@ -48,6 +52,12 @@ def solar_grade_inspectors(inspectors, sg_ids, integrations_field):
         sg_ids - SolarGrade IDs list.
         integrations_field - Inspector integrations list field.
         returns -> []
+        Example:
+            sg_inspectors = solar_grade_inspectors(
+                request(ENDPOINTS["INSPECTORS"]),
+                SG_IDS,
+                "availableIntegrations"
+            )
     '''
     try: 
         return [
@@ -65,6 +75,12 @@ def solar_grade_inspections(sg_inspectors, inspections, inspector_id_field):
         inspections - Inspections list.
         inspector_id_field - Inspection inspector ID field.
         returns -> []
+        Example:
+            sg_inspections = solar_grade_inspections(
+                sg_inspectors,
+                request(ENDPOINTS["INSPECTIONS"]),
+                "availableIntegrations"
+            )
     '''
     inspectors_by_id = {}
     inspections = []
@@ -104,6 +120,8 @@ def fake_solar_query_set_factory(inspections):
     Return a mocked model from inspections list
     inspections - solar_grade_inspections generated inspections list
     returns -> QuerySet
+    Example:
+        fs_query = fake_solar_query_set_factory(sg_inspections)
     '''
     mock_inspections = [ 
         MockModel(**item)
@@ -111,3 +129,25 @@ def fake_solar_query_set_factory(inspections):
     ]
     fs_model = MockSet(mock_inspections)
     return fs_model
+
+
+# TESTS
+sg_inspectors = solar_grade_inspectors(
+            request(ENDPOINTS["INSPECTORS"]),
+            SG_IDS,
+            "availableIntegrations"
+        )
+
+print(sg_inspectors)
+
+sg_inspections = solar_grade_inspections(
+    sg_inspectors,
+    request(ENDPOINTS["INSPECTIONS"]),
+    "availableIntegrations"
+)
+
+print(sg_inspections)
+
+fs_query = fake_solar_query_set_factory(sg_inspections)
+
+print(fs_query)

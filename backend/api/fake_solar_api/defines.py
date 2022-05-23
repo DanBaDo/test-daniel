@@ -3,7 +3,7 @@ ENDPOINTS = {
     'INSPECTIONS': "https://6244305b3da3ac772b0c7854.mockapi.io/fakeSolar/3rdParty/inspections"
 }
 
-SG_IDS  = {"SolarGrade"}
+SG_IDS  = ["SolarGrade"]
 
 RESP_STATUS = {
     'OK': 'Ok',
